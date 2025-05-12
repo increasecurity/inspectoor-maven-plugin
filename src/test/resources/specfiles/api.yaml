@@ -1,0 +1,261 @@
+openapi: 3.0.3
+info:
+  title: gratishunter.com event API
+  version: 1.0.0
+  description: event api to manage gratishunter.com
+tags:
+  - name: event
+    description: event API
+  - name: search
+    description: search events
+servers:
+  - url: https://localhost:8081
+    description: local
+  - url: https://hahaha.rog/
+    description: develop
+paths:
+  '/events':
+    get:
+      tags:
+        - event
+      parameters:
+        - in: query
+          name: country
+          description: country name, optional
+          schema:
+            $ref: "#/components/schemas/countryCode"
+        - in: query
+          name: state
+          description: state name, optional
+          schema:
+            type: string
+        - in: query
+          name: geoposition
+          description: lat and longtitude separated by semi colon, optional
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/events'
+    post:
+      tags:
+        - event
+      requestBody:
+        $ref: '#/components/requestBodies/eventBody'
+      responses:
+        "200":
+          description: "Ok, tutorial successfuly saved"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/event'
+        "400":
+          description: "something went wrong"
+        default:
+          description: "Unexpected error"
+  '/events/{id}':
+    get:
+      tags:
+        - event
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: id of event
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: "return event with the specified id"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/event'
+        "404":
+          description: "event not found"
+        default:
+          description: "Unexpected error"
+    delete:
+      tags:
+        - event
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: id of event
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: "event was deleted successfully"
+        "404":
+          description: "event not found"
+        default:
+          description: "Unexpected error"
+  '/search/{country}/{postCode}':
+    get:
+      tags:
+        - search
+      description: seach by country and postcode
+      parameters:
+        - in: path
+          name: country
+          required: true
+          description: country name
+          schema:
+            $ref: "#/components/schemas/countryCode"
+        - name: postCode
+          in: path
+          required: true
+          description: postCode of the event, can be a wildcard
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/events'
+components:
+  securitySchemes:
+    basicAuth:     # <-- arbitrary name for the security scheme
+      type: http
+      scheme: basic
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    event:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        url:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          $ref: "#/components/schemas/countryCode"
+          default:
+        type:
+          $ref: "#/components/schemas/eventType"
+        postCode:
+          type: string
+        linkToPic:
+          type: string
+        availabilities:
+          type: array
+          maxItems: 10
+          items:
+            $ref: "#/components/schemas/availability"
+        conditions:
+          type: array
+          maxItems: 5
+          items:
+            $ref: "#/components/schemas/availabilityCondition"
+        locationType:
+          $ref: "#/components/schemas/locationType"
+        remarks:
+          type: array
+          maxItems: 5
+          items:
+            type: string
+    eventType:
+      type: string
+      enum:
+        - BDAY
+        - PROM
+        - NWOP
+        - FREN
+      description: >
+        event types:
+          * DBAY - Birthday
+          * PROM - Promotion
+          * NWOP - New Opening
+          * FREN - Free entry
+    availability:
+      type: object
+      properties:
+        name:
+          type: string
+        days:
+          type: string
+        timeFrom:
+          type: string
+          description: time from in 24 hour format
+        timeTo:
+          type: string
+          description: time to in 24 hour format
+        dateRange:
+          $ref: "#/components/schemas/dateRange"
+    dateRange:
+      type: object
+      properties:
+        start:
+          type: string
+          description: "iso 8601 (i.e. 2017-06-17T00:01:13Z)"
+          example: "1995-09-07T10:40:52Z"
+          #format: date-time
+        end:
+          type: string
+          description: "iso 8601 (i.e. 2017-06-18T23:59:12Z)"
+    availabilityCondition:
+      type: string
+      enum:
+        - FREE
+        - BIRTHDAY
+        - CHILDERN_UNDER_4
+        - CHILDERN_UNDER_6
+        - CHILDERN_UNDER_12
+        - CHILDERN_UNDER_15
+        - FIRST_10
+    locationType:
+      type: string
+      enum:
+        - SWIMMINGPOOL
+        - MUSEUM
+        - PARK
+        - ART
+        - ZOO
+        - DRIVE
+    countryCode:
+      type: string
+      description: "countries code ISO 3166 alpha-2"
+      enum:
+        - DE
+        - FR
+        - AT
+        - ES
+        - CH
+    events:
+      type: array
+      maxItems: 5
+      items:
+        $ref: '#/components/schemas/event'
+  requestBodies:
+    eventBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/event'
+security:
+  - basicAuth: []
+  - bearerAuth: []
