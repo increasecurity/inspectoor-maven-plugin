@@ -1,0 +1,1 @@
+# inspectoor-maven-plugin
