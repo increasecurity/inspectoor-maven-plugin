@@ -15,7 +15,7 @@ class InspectoorUtilTest {
     final static String SPEC_FILE3 = "src/test/resources/specfiles/petstore2.json";
     final static String SPEC_FILE4 = "src/test/resources/specfiles/petstore3.json";
     final static String SPEC_FILE5 = "src/test/resources/specfiles/swagger2.yaml";
-    final static String SPEC_FILE_WRONG_LOCATION = "inspectoor-mvn-plugin/src/test/resources/specfiles/petstore2.json";
+    final static String SPEC_FILE_WRONG_LOCATION = "inspectoor-maven-plugin/src/test/resources/specfiles/petstore2.json";
 
     @Test
     void extractOpenApiVersions() {

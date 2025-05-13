@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.increasecurity.projects</groupId>
 	<artifactId>inspectoor-maven-plugin</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<packaging>maven-plugin</packaging>
 	<name>inspectoor-maven-plugin</name>
 	<url>https://github.com/increasecurity/inspectoor-maven-plugin</url>
@@ -19,6 +19,7 @@
 		<maven-site-plugin.version>3.8.2</maven-site-plugin.version>
 		<junit.jupiter.version>5.9.1</junit.jupiter.version>
 		<maven-plugin-plugin.version>3.15.1</maven-plugin-plugin.version>
+		<lombok.version>1.18.30</lombok.version>
 	</properties>
 
 	<dependencies>
@@ -67,6 +68,14 @@
 			<version>3.2.1</version>
 		</dependency>
 		<!-- -->
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<optional>true</optional>
+		</dependency>
+
 		<dependency>
 			<groupId>org.twdata.maven</groupId>
 			<artifactId>mojo-executor</artifactId>

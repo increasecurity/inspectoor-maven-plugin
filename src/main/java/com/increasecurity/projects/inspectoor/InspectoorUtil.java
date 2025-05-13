@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.increasecurity.projects.inspectoor.model.Project;
 import com.increasecurity.projects.inspectoor.model.Server;
 import com.increasecurity.projects.inspectoor.model.Spec;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
@@ -19,6 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
+@Slf4j
 public class InspectoorUtil {
 
     private static final String POM_FILE = "pom.xml";
@@ -27,7 +29,7 @@ public class InspectoorUtil {
         return pomFile.replace(POM_FILE, "target/bom.json");
     }
 
-    public static String  readFile(String path) throws IOException {
+    public static String readFile(String path) throws IOException {
         StringBuilder sb = new StringBuilder();
         String line;
         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
@@ -58,7 +60,7 @@ public class InspectoorUtil {
         try {
             json = objectMapper.writeValueAsString(project);
         } catch (JsonProcessingException e) {
-            System.err.println("Error in toJson " + e.getMessage());
+            log.error("Error in toJson {}", e.getMessage());
         }
         return json;
     }
@@ -93,6 +95,7 @@ public class InspectoorUtil {
                 return yamlMap.containsKey("openapi") || yamlMap.containsKey("swagger");
             }
         } catch (Exception e) {
+            log.error("Error in isValidOpenApiFile {}", e.getMessage());
             return false;
         }
     }
@@ -155,7 +158,7 @@ public class InspectoorUtil {
                 }
             }
         } catch (Exception ex) {
-            System.err.println("File " + ex.getMessage() + " not found and will be ignored");
+            log.error("File not found and will be ignored {}", ex.getMessage());
             spec = null;
         }
 
@@ -182,6 +185,7 @@ public class InspectoorUtil {
             });
 
         }
+
         return servers;
     }
 
@@ -210,7 +214,7 @@ public class InspectoorUtil {
 
             }
         } catch (Exception e) {
-
+            log.error("Error in extractServers {}", e.getMessage());
         }
 
         return servers;

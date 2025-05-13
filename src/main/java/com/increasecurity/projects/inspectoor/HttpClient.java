@@ -17,6 +17,12 @@ public class HttpClient {
         throw new IllegalStateException("Utility class");
     }
 
+    /**
+     * Upload project meta data
+     * @param json
+     * @param url
+     * @param apiKey
+     */
     public static void doPostRequest(String json, String url, String apiKey) {
         log.info("doPostRequest URL {}", url);
         RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, json);
@@ -34,10 +40,14 @@ public class HttpClient {
         }
     }
 
-    private static OkHttpClient getClient() {
-        return new OkHttpClient().newBuilder().build();
-    }
-
+    /**
+     * Upload sbom json file
+     * @param sbomFileName
+     * @param system
+     * @param projectName
+     * @param url
+     * @param apiKey
+     */
     public static void uploadSBOM(String sbomFileName, String system, String projectName, String url, String apiKey) {
         log.info("uploadSBOM URL ={}", url);
         OkHttpClient client = new OkHttpClient();
@@ -62,6 +72,10 @@ public class HttpClient {
         } catch (IOException e) {
             log.error("Exception in uploadSBOM ", e);
         }
+    }
+
+    private static OkHttpClient getClient() {
+        return new OkHttpClient().newBuilder().build();
     }
 
 }

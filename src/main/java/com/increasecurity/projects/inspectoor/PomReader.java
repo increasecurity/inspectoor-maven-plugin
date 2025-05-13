@@ -26,12 +26,9 @@ public class PomReader {
         String srcPath = InspectoorUtil.adjustSrcPath(pomFile.getAbsolutePath());
 
         List<File> specsFiles = specsFinder.findSpecFiles(srcPath);
-        specsFiles.stream().forEach(file -> {
-            System.out.println("file =" + file.getAbsolutePath());
-        });
+
         List<Spec> specs = specsFinder.readSpecs(specsFiles);
         List<String> pomSpecFiles = specsFinder.findSpecFilesInPom(project);
-        System.out.println("specFilesInPom " + pomSpecFiles);
         specsFinder.mergeSpecFiles(pomSpecFiles, specs);
 
         newProject.getSpecs().addAll(specs);

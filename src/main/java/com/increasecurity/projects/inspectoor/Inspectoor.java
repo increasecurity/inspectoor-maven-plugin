@@ -23,16 +23,10 @@ import java.util.List;
 public class Inspectoor extends AbstractMojo {
 
     @Parameter(property = "checkSpecs", defaultValue = "false")
-    private boolean checkSpecs;
+    private boolean checkspecs;
 
-    @Parameter(property = "command", required = false)
+    @Parameter(property = "command")
     private int command = 1;
-
-    @Parameter(property = "url")
-    String url;
-
-    @Parameter(property = "apikey")
-    String apikey;
 
     @Parameter(property = "ou", required = true)
     String ou;
@@ -42,6 +36,12 @@ public class Inspectoor extends AbstractMojo {
 
     @Parameter(property = "tag")
     String tag;
+
+    @Parameter(property = "url")
+    String url;
+
+    @Parameter(property = "apikey")
+    String apikey;
 
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     MavenProject project;
@@ -62,7 +62,7 @@ public class Inspectoor extends AbstractMojo {
         newProjekt.setGroupId(project.getGroupId());
         newProjekt.setArtifactId(project.getArtifactId());
 
-        if (checkSpecs) {
+        if (checkspecs) {
             checkSpecs();
         }
 
@@ -80,7 +80,7 @@ public class Inspectoor extends AbstractMojo {
                 uploadSbom();
                 break;
             default:
-                getLog().warn("Unbekannter command: " + command);
+                getLog().warn("unknown command: " + command);
                 break;
         }
     }
@@ -111,9 +111,13 @@ public class Inspectoor extends AbstractMojo {
         HttpClient.doPostRequest(json, this.url + "/projects", this.apikey);
     }
 
+    /**
+     * Validate the spec files. Not
+     * @throws MojoExecutionException
+     */
     private void checkSpecs() throws MojoExecutionException {
         getLog().info("*** checkSpecs ***");
-        throw new MojoExecutionException("CheckSpecs Failed");
+        throw new MojoExecutionException("CheckSpecs not implemented now");
     }
 
     private void printInfos(Project project) {
@@ -130,6 +134,11 @@ public class Inspectoor extends AbstractMojo {
         getLog().info("Number of Specs:         " + project.getSpecs().size());
     }
 
+    /**
+     * Building the cyclonedx plugin
+     * @param output
+     * @return
+     */
     private Plugin getMvnPlugin(String output) {
         Plugin plugin = new Plugin();
 
@@ -147,6 +156,11 @@ public class Inspectoor extends AbstractMojo {
         return plugin;
     }
 
+    /**
+     * The configuration for the cyclonedx plugin
+     * @param output
+     * @return
+     */
     private Xpp3Dom getPluginConfiguration(String output) {
         MojoExecutor.Element projectType = new MojoExecutor.Element("projectType", "library");
         MojoExecutor.Element schemaVersion = new MojoExecutor.Element("schemaVersion", "1.4");
