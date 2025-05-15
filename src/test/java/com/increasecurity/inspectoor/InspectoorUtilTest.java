@@ -1,6 +1,6 @@
-package com.increasecurity.projects.inspectoor;
+package com.increasecurity.inspectoor;
 
-import com.increasecurity.projects.inspectoor.model.Spec;
+import com.increasecurity.inspectoor.model.Spec;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
