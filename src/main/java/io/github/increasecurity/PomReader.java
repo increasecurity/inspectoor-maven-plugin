@@ -1,14 +1,14 @@
-package com.increasecurity.inspectoor;
+package io.github.increasecurity;
 
-import com.increasecurity.inspectoor.model.Project;
-import com.increasecurity.inspectoor.model.Spec;
+import io.github.increasecurity.model.Project;
+import io.github.increasecurity.model.Spec;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.util.List;
 
-import static com.increasecurity.inspectoor.InspectoorUtil.isBlank;
-import static com.increasecurity.inspectoor.InspectoorUtil.isBlankList;
+import static io.github.increasecurity.InspectoorUtil.isBlank;
+import static io.github.increasecurity.InspectoorUtil.isBlankList;
 
 public class PomReader {
 

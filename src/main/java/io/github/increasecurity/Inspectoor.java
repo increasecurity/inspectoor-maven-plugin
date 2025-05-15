@@ -1,6 +1,6 @@
-package com.increasecurity.inspectoor;
+package io.github.increasecurity;
 
-import com.increasecurity.inspectoor.model.Project;
+import io.github.increasecurity.model.Project;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
