@@ -2,15 +2,37 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.increasecurity.projects</groupId>
+	<groupId>com.increasecurity.inspectoor</groupId>
 	<artifactId>inspectoor-maven-plugin</artifactId>
 	<version>1.0.1</version>
 	<packaging>maven-plugin</packaging>
+
 	<name>inspectoor-maven-plugin</name>
 	<url>https://github.com/increasecurity/inspectoor-maven-plugin</url>
+	<description>A maven plugin to collect openapi files and send it to a backend application</description>
+
+	<scm>
+		<connection>scm:git:git://github.com/increasecurity/inspectoor-maven-plugin.git</connection>
+		<developerConnection>scm:git:ssh://github.com:increasecurity/inspectoor-maven-plugin.git</developerConnection>
+		<url>https://github.com/increasecurity/inspectoor-maven-plugin/tree/main</url>
+	</scm>
+
+	<licenses>
+		<license>
+			<name>Apache License 2.0</name>
+			<url>http://www.apache.org/licenses/</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>A.S Waldmann</name>
+			<email>info@increasecurity.com</email>
+		</developer>
+	</developers>
 
 	<prerequisites>
-		<maven>3.5</maven>
+		<maven>3.6</maven>
 	</prerequisites>
 
 	<properties>
@@ -150,6 +172,63 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!--
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			-->
+
+			<plugin>
+				<groupId>org.sonatype.central</groupId>
+				<artifactId>central-publishing-maven-plugin</artifactId>
+				<version>0.3.0</version>
+				<extensions>true</extensions>
+				<configuration>
+					<publishingServerId>central</publishingServerId>
+					<tokenAuth>true</tokenAuth>
+					<autoPublish>true</autoPublish>
+					<waitUntil>published</waitUntil>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
