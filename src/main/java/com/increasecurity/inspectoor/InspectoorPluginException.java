@@ -1,4 +1,4 @@
-package com.increasecurity.projects.inspectoor;
+package com.increasecurity.inspectoor;
 
 public class InspectoorPluginException extends RuntimeException{
 

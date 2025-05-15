@@ -1,4 +1,4 @@
-package com.increasecurity.projects.inspectoor;
+package com.increasecurity.inspectoor;
 
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;

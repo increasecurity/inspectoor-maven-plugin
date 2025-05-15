@@ -1,4 +1,4 @@
-package com.increasecurity.projects.inspectoor.model;
+package com.increasecurity.inspectoor.model;
 
 import lombok.Data;
 

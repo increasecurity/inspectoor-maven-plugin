@@ -1,12 +1,12 @@
-package com.increasecurity.projects.inspectoor;
+package com.increasecurity.inspectoor;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.increasecurity.projects.inspectoor.model.Project;
-import com.increasecurity.projects.inspectoor.model.Server;
-import com.increasecurity.projects.inspectoor.model.Spec;
+import com.increasecurity.inspectoor.model.Project;
+import com.increasecurity.inspectoor.model.Server;
+import com.increasecurity.inspectoor.model.Spec;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
