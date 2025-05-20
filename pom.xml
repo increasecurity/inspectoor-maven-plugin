@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.increasecurity</groupId>
 	<artifactId>inspectoor-maven-plugin</artifactId>
-	<version>1.0.1</version>
+	<version>1.1.0</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>inspectoor-maven-plugin</name>
@@ -42,47 +42,53 @@
 		<junit.jupiter.version>5.9.1</junit.jupiter.version>
 		<maven-plugin-plugin.version>3.15.1</maven-plugin-plugin.version>
 		<lombok.version>1.18.30</lombok.version>
+		<snakeyaml.version>2.2</snakeyaml.version>
+		<json.version>20240303</json.version>
+		<jackson-databind.version>2.14.2</jackson-databind.version>
+		<maven-plugin-annotations.version>3.8.1</maven-plugin-annotations.version>
+		<maven-plugin.version>3.8.7</maven-plugin.version>
+		<maven-project.version>2.2.1</maven-project.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.yaml</groupId>
 			<artifactId>snakeyaml</artifactId>
-			<version>2.2</version>
+			<version>${snakeyaml.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20240303</version>
+			<version>${json.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.14.2</version>
+			<version>${jackson-databind.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.plugin-tools</groupId>
 			<artifactId>maven-plugin-annotations</artifactId>
-			<version>3.8.1</version>
+			<version>${maven-plugin-annotations.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-plugin-api</artifactId>
-			<version>3.8.7</version>
+			<version>${maven-plugin.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-core</artifactId>
-			<version>3.8.7</version>
+			<version>${maven-plugin.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-project</artifactId>
 			<scope>provided</scope>
-			<version>2.2.1</version>
+			<version>${maven-project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.shared</groupId>
@@ -95,7 +101,18 @@
 			<version>${lombok.version}</version>
 			<optional>true</optional>
 		</dependency>
-
+		<!-- YAML for parsing the rules -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-yaml</artifactId>
+			<version>2.16.0</version>
+		</dependency>
+		<!-- OpenAPI Parser -->
+		<dependency>
+			<groupId>io.swagger.parser.v3</groupId>
+			<artifactId>swagger-parser</artifactId>
+			<version>2.1.16</version>
+		</dependency>
 		<dependency>
 			<groupId>org.twdata.maven</groupId>
 			<artifactId>mojo-executor</artifactId>
@@ -215,7 +232,7 @@
 				<configuration>
 					<publishingServerId>central</publishingServerId>
 					<tokenAuth>true</tokenAuth>
-					<autoPublish>true</autoPublish>
+					<autoPublish>false</autoPublish>
 					<waitUntil>published</waitUntil>
 				</configuration>
 			</plugin>

@@ -30,10 +30,19 @@ class InspectoorUtilTest {
     }
 
     @Test
+    void extractExtractSecuritySchemes() {
+        List<File> apiFiles = new ArrayList<>();
+        apiFiles.add(new File(SPEC_FILE1));
+        List<Spec> specs = InspectoorUtil.extractOpenApiVersions(apiFiles);
+        Assertions.assertFalse(specs.isEmpty());
+    }
+
+    @Test
     void extractOpenApiVersionsNotFound() {
         List<File> apiFiles = new ArrayList<>();
         apiFiles.add(new File(SPEC_FILE_WRONG_LOCATION));
         List<Spec> specs = InspectoorUtil.extractOpenApiVersions(apiFiles);
         Assertions.assertTrue(specs.isEmpty());
     }
+
 }

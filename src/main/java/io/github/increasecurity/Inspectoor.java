@@ -1,6 +1,9 @@
 package io.github.increasecurity;
 
+import io.github.increasecurity.model.CheckSpecMode;
 import io.github.increasecurity.model.Project;
+import io.github.increasecurity.model.Server;
+import io.github.increasecurity.model.Spec;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
@@ -16,36 +19,30 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Mojo(name = "inspectoor", requiresDependencyResolution = ResolutionScope.COMPILE, aggregator = true)
 public class Inspectoor extends AbstractMojo {
 
-    @Parameter(property = "checkSpecs", defaultValue = "false")
-    private boolean checkspecs;
-
-    @Parameter(property = "command")
-    private int command = 1;
-
     @Parameter(property = "ou", required = true)
     String ou;
-
     @Parameter(property = "system", required = true)
     String system;
-
     @Parameter(property = "tag")
     String tag;
-
     @Parameter(property = "url")
     String url;
-
     @Parameter(property = "apikey")
     String apikey;
-
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     MavenProject project;
-
+    @Parameter(property = "checkSpecs", defaultValue = "none")
+    private String checkspecs;
+    @Parameter(property = "command")
+    private final int command = 1;
     @Parameter(property = "reactorProjects", readonly = true, required = true)
     private List<MavenProject> reactorProjects;
 
@@ -58,13 +55,11 @@ public class Inspectoor extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         getLog().info("############################## execute: inspectoor ##############################");
-        Project newProjekt = new PomReader().readPom(project, reactorProjects, "realm1", this.ou, this.system, this.tag, project.getVersion());
+        Project newProjekt = new PomReader().readPom(project, project.getParent(), reactorProjects, "saas", this.ou, this.system, this.tag, project.getVersion());
         newProjekt.setGroupId(project.getGroupId());
         newProjekt.setArtifactId(project.getArtifactId());
 
-        if (checkspecs) {
-            checkSpecs();
-        }
+        checkSpecs(collectAllSpecs(newProjekt));
 
         switch (command) {
             case 1:
@@ -101,7 +96,6 @@ public class Inspectoor extends AbstractMojo {
         } catch (Exception ex) {
             getLog().error("error trying to process SBOM", ex);
         }
-
     }
 
     private void uploadProject(Project newProjekt) {
@@ -111,13 +105,43 @@ public class Inspectoor extends AbstractMojo {
         HttpClient.doPostRequest(json, this.url + "/projects", this.apikey);
     }
 
-    /**
-     * Validate the spec files. Not
-     * @throws MojoExecutionException
-     */
-    private void checkSpecs() throws MojoExecutionException {
-        getLog().info("*** checkSpecs ***");
-        throw new MojoExecutionException("CheckSpecs not implemented now");
+    private void checkSpecs(List<Spec> specs) throws MojoExecutionException {
+        CheckSpecMode mode = CheckSpecMode.fromString(checkspecs);
+        switch (mode) {
+            case NONE:
+                return;
+            case WARN:
+            case FAIL:
+                List<String> allWarnings = new ArrayList<>();
+                for (Spec spec : specs) {
+                    String specId = (spec.getName() != null ? spec.getName() : "Unnamed Spec");
+
+                    // Prüfe Server
+                    if (spec.getServers() == null || spec.getServers().isEmpty()) {
+                        allWarnings.add(specId + ": No servers defined.");
+                    } else {
+                        for (Server server : spec.getServers()) {
+                            if (server.getUrl() != null && server.getUrl().startsWith("http://")) {
+                                allWarnings.add(specId + ": Insecure server URL (http): " + server.getUrl());
+                            }
+                        }
+                    }
+
+                    if (spec.getSecuritySchemes() == null || spec.getSecuritySchemes().isEmpty()) {
+                        allWarnings.add(specId + ": No securitySchemes defined.");
+                    }
+                }
+
+                for (String warning : allWarnings) {
+                    getLog().warn(warning);
+                }
+
+                if (mode == CheckSpecMode.FAIL && !allWarnings.isEmpty()) {
+                    throw new MojoExecutionException("checkSpecs failed with " + allWarnings.size() + " issue(s).");
+                }
+
+                break;
+        }
     }
 
     private void printInfos(Project project) {
@@ -132,10 +156,29 @@ public class Inspectoor extends AbstractMojo {
         getLog().info("Tag:                     " + project.getTag());
         getLog().info("Number of Projects:      " + project.getProjects().size());
         getLog().info("Number of Specs:         " + project.getSpecs().size());
+        getLog().info("Number of All Specs:     " + countAllSpecs(project));
+
+
+    }
+
+    private List<Spec> collectAllSpecs(Project project) {
+        return Stream.concat(
+                project.getSpecs().stream(),
+                project.getProjects().stream()
+                        .flatMap(sub -> collectAllSpecs(sub).stream())
+        ).toList();
+    }
+
+    private int countAllSpecs(Project project) {
+        return project.getSpecs().size() +
+                project.getProjects().stream()
+                        .mapToInt(this::countAllSpecs)
+                        .sum();
     }
 
     /**
      * Building the cyclonedx plugin
+     *
      * @param output
      * @return
      */
@@ -158,6 +201,7 @@ public class Inspectoor extends AbstractMojo {
 
     /**
      * The configuration for the cyclonedx plugin
+     *
      * @param output
      * @return
      */

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.increasecurity.model.Project;
 import io.github.increasecurity.model.Server;
 import io.github.increasecurity.model.Spec;
+import io.github.increasecurity.model.security.SecurityScheme;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -77,7 +78,7 @@ public class InspectoorUtil {
                     .filter(InspectoorUtil::isValidOpenApiFile)
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warn("Something went wrong in findOpenApiFiles {} ", e.getMessage());
             return Collections.emptyList();
         }
     }
@@ -115,6 +116,39 @@ public class InspectoorUtil {
         return specs;
     }
 
+    private static List<SecurityScheme> extractSecuritySchemes(Object root) {
+        Map<String, Object> map = (Map<String, Object>) root;
+
+        Map<String, Object> componentsOrSecurityDefinitions = null;
+
+        if (map.containsKey("components")) {
+            componentsOrSecurityDefinitions = (Map<String, Object>) map.get("components");
+        } else if (map.containsKey("securityDefinitions")) {
+            componentsOrSecurityDefinitions = map; // swagger 2.0
+        }
+
+        if (componentsOrSecurityDefinitions == null) return Collections.emptyList();
+
+        Map<String, Object> securityMap = (Map<String, Object>) (
+                componentsOrSecurityDefinitions.containsKey("securitySchemes")
+                        ? componentsOrSecurityDefinitions.get("securitySchemes")  // OAS 3.x
+                        : componentsOrSecurityDefinitions.get("securityDefinitions")  // Swagger 2.0
+        );
+
+        if (securityMap == null) return Collections.emptyList();
+
+        List<SecurityScheme> result = new ArrayList<>();
+        for (Map.Entry<String, Object> entry : securityMap.entrySet()) {
+            Map<String, Object> scheme = (Map<String, Object>) entry.getValue();
+            try {
+                result.add(SecuritySchemeFactory.create(scheme));
+            } catch (Exception e) {
+                log.warn("Could not parse SecurityScheme: {}", entry.getKey());
+            }
+        }
+        return result;
+    }
+
     private static Spec detectApiSpecType(File file) {
         Spec spec = new Spec();
         try {
@@ -132,6 +166,7 @@ public class InspectoorUtil {
                     spec.setInfo_version(extractInfoVersion(infoMap));
                     List<Server> servers = extractServers(json);
                     spec.getServers().addAll(servers);
+                    spec.setSecuritySchemes(extractSecuritySchemes(json.toMap()));
                 } else if (json.has("swagger")) {
                     spec.setType("swagger");
                     spec.setVersion(json.getString("swagger"));
@@ -139,6 +174,7 @@ public class InspectoorUtil {
                     spec.setInfo_version(extractInfoVersion(infoMap));
                     List<Server> servers = extractServers(json);
                     spec.getServers().addAll(servers);
+                    spec.setSecuritySchemes(extractSecuritySchemes(json.toMap()));
                 }
             } else {
                 Yaml yaml = new Yaml();
@@ -150,11 +186,13 @@ public class InspectoorUtil {
                     spec.setVersion(yamlMap.get("openapi").toString());
                     List<Server> servers = extractServers(yamlMap);
                     spec.getServers().addAll(servers);
+                    spec.setSecuritySchemes(extractSecuritySchemes(yamlMap));
                 } else if (yamlMap.containsKey("swagger")) {
                     spec.setType("swagger");
                     spec.setVersion(yamlMap.get("swagger").toString());
                     List<Server> servers = extractServers(yamlMap);
                     spec.getServers().addAll(servers);
+                    spec.setSecuritySchemes(extractSecuritySchemes(yamlMap));
                 }
             }
         } catch (Exception ex) {
@@ -231,7 +269,6 @@ public class InspectoorUtil {
             return null;
         return jsonObject.get("version").toString();
     }
-
 
     public static byte[] compress(byte[] jsonAsByte) throws IOException {
         ByteArrayOutputStream obj = new ByteArrayOutputStream();
