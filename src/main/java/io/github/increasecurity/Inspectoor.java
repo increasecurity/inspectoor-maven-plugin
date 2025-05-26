@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Mojo(name = "inspectoor", requiresDependencyResolution = ResolutionScope.COMPILE, aggregator = true)
@@ -39,10 +40,11 @@ public class Inspectoor extends AbstractMojo {
     String apikey;
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     MavenProject project;
-    @Parameter(property = "checkSpecs", defaultValue = "none")
+    @Parameter(property = "checkspecs", defaultValue = "none")
     private String checkspecs;
     @Parameter(property = "command")
-    private final int command = 1;
+    private int command = 1;
+
     @Parameter(property = "reactorProjects", readonly = true, required = true)
     private List<MavenProject> reactorProjects;
 
@@ -107,41 +109,41 @@ public class Inspectoor extends AbstractMojo {
 
     private void checkSpecs(List<Spec> specs) throws MojoExecutionException {
         CheckSpecMode mode = CheckSpecMode.fromString(checkspecs);
-        switch (mode) {
-            case NONE:
-                return;
-            case WARN:
-            case FAIL:
-                List<String> allWarnings = new ArrayList<>();
-                for (Spec spec : specs) {
-                    String specId = (spec.getName() != null ? spec.getName() : "Unnamed Spec");
-
-                    // Prüfe Server
-                    if (spec.getServers() == null || spec.getServers().isEmpty()) {
-                        allWarnings.add(specId + ": No servers defined.");
-                    } else {
-                        for (Server server : spec.getServers()) {
-                            if (server.getUrl() != null && server.getUrl().startsWith("http://")) {
-                                allWarnings.add(specId + ": Insecure server URL (http): " + server.getUrl());
-                            }
-                        }
-                    }
-
-                    if (spec.getSecuritySchemes() == null || spec.getSecuritySchemes().isEmpty()) {
-                        allWarnings.add(specId + ": No securitySchemes defined.");
-                    }
-                }
-
-                for (String warning : allWarnings) {
-                    getLog().warn(warning);
-                }
-
-                if (mode == CheckSpecMode.FAIL && !allWarnings.isEmpty()) {
-                    throw new MojoExecutionException("checkSpecs failed with " + allWarnings.size() + " issue(s).");
-                }
-
-                break;
+        if (mode == CheckSpecMode.NONE) {
+            return;
         }
+
+        List<String> warnings = specs.stream()
+                .flatMap(spec -> checkSpec(spec).stream())
+                .collect(Collectors.toList());
+
+        warnings.forEach(getLog()::warn);
+
+        if (mode == CheckSpecMode.FAIL && !warnings.isEmpty()) {
+            throw new MojoExecutionException("checkSpecs failed with " + warnings.size() + " issue(s).");
+        }
+    }
+
+    private List<String> checkSpec(Spec spec) {
+        List<String> issues = new ArrayList<>();
+        String specId = spec.getName() != null ? spec.getName() : "Unnamed Spec";
+
+        if (spec.getServers() == null || spec.getServers().isEmpty()) {
+            issues.add(specId + ": No servers defined.");
+        } else {
+            for (Server server : spec.getServers()) {
+                String url = server.getUrl();
+                if (url != null && url.startsWith("http://")) {
+                    issues.add(specId + ": Insecure server URL (http): " + url);
+                }
+            }
+        }
+
+        if (spec.getSecuritySchemes() == null || spec.getSecuritySchemes().isEmpty()) {
+            issues.add(specId + ": No securitySchemes defined.");
+        }
+
+        return issues;
     }
 
     private void printInfos(Project project) {
@@ -152,13 +154,13 @@ public class Inspectoor extends AbstractMojo {
         getLog().info("Version:                 " + project.getVersion());
         getLog().info("OU:                      " + project.getOu());
         getLog().info("System:                  " + project.getSystem());
+        getLog().info("Realm:                   " + project.getRealm());
+        getLog().info("Framework:               " + project.getFramework());
         getLog().info("Mono:                    " + project.isMono());
         getLog().info("Tag:                     " + project.getTag());
         getLog().info("Number of Projects:      " + project.getProjects().size());
         getLog().info("Number of Specs:         " + project.getSpecs().size());
         getLog().info("Number of All Specs:     " + countAllSpecs(project));
-
-
     }
 
     private List<Spec> collectAllSpecs(Project project) {

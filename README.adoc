@@ -16,10 +16,19 @@ A maven plugin to collect openapi files and send it to a backend application
 |===
 |Name | Required | default value |Explanation
 
-|checkspecs||false|Checks and validate every found openapi file
+|checkspecs||none|Checks and validates every found openapi file.
+
+none -> ignore
+
+warn -> logging the warnings
+
+fail -> stop processing
 |command||1|Defines the feature:
+
 1 -> printInfos.
+
 2 -> printInfos and upload meta data
+
 3 -> printInfos, upload meta data and upload the SBOM file
 |ou|x||The orginaztion unit. It can contain a semicolon-separated names.
 |system|x||The associated system
