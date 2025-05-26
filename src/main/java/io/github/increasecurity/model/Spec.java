@@ -1,5 +1,6 @@
-package com.increasecurity.inspectoor.model;
+package io.github.increasecurity.model;
 
+import io.github.increasecurity.model.security.SecurityScheme;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -14,5 +15,6 @@ public class Spec {
     private String info_version;
     private String content;
     private List<Server> servers = new ArrayList<>();
+    private List<SecurityScheme> securitySchemes = new ArrayList<>();
 
 }

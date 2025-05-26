@@ -16,10 +16,19 @@ A maven plugin to collect openapi files and send it to a backend application
 |===
 |Name | Required | default value |Explanation
 
-|checkspecs||false|Checks and validate every found openapi file
+|checkspecs||none|Checks and validates every found openapi file.
+
+none -> ignore
+
+warn -> logging the warnings
+
+fail -> stop processing
 |command||1|Defines the feature:
+
 1 -> printInfos.
+
 2 -> printInfos and upload meta data
+
 3 -> printInfos, upload meta data and upload the SBOM file
 |ou|x||The orginaztion unit. It can contain a semicolon-separated names.
 |system|x||The associated system
@@ -32,6 +41,6 @@ A maven plugin to collect openapi files and send it to a backend application
 == Usages
 
 ----
-mvn com.increasecurity.projects:inspectoor-maven-plugin:inspectoor -Dou="sales;okSquad" -Dsystem="loremSystem" -Dtag="maven-plugin" -Dcommand=1
-mvn com.increasecurity.projects:inspectoor-maven-plugin:inspectoor -Dou="sales;okSquad" -Dsystem="loremSystem" -Dtag="maven-plugin" -Dcommand=2 --Durl="http://localhost:8081" -Dapikey="secret"
+mvn io.github.increasecurity:inspectoor-maven-plugin:inspectoor -Dou="sales;okSquad" -Dsystem="loremSystem" -Dtag="maven-plugin" -Dcommand=1
+mvn io.github.increasecurity:inspectoor-maven-plugin:inspectoor -Dou="sales;okSquad" -Dsystem="loremSystem" -Dtag="maven-plugin" -Dcommand=2 --Durl="http://localhost:8081" -Dapikey="secret"
 ----

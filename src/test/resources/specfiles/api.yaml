@@ -61,6 +61,7 @@ paths:
     get:
       tags:
         - event
+      summary: List all events
       parameters:
         - in: path
           name: id

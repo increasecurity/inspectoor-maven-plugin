@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.increasecurity.inspectoor</groupId>
+	<groupId>io.github.increasecurity</groupId>
 	<artifactId>inspectoor-maven-plugin</artifactId>
-	<version>1.0.1</version>
+	<version>1.2.0</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>inspectoor-maven-plugin</name>
@@ -26,7 +26,7 @@
 
 	<developers>
 		<developer>
-			<name>A.S Waldmann</name>
+			<name>AS Waldmann</name>
 			<email>info@increasecurity.com</email>
 		</developer>
 	</developers>
@@ -42,62 +42,77 @@
 		<junit.jupiter.version>5.9.1</junit.jupiter.version>
 		<maven-plugin-plugin.version>3.15.1</maven-plugin-plugin.version>
 		<lombok.version>1.18.30</lombok.version>
+		<snakeyaml.version>2.2</snakeyaml.version>
+		<json.version>20240303</json.version>
+		<jackson-databind.version>2.14.2</jackson-databind.version>
+		<maven-plugin-annotations.version>3.8.1</maven-plugin-annotations.version>
+		<maven-plugin.version>3.8.7</maven-plugin.version>
+		<maven-project.version>2.2.1</maven-project.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.yaml</groupId>
 			<artifactId>snakeyaml</artifactId>
-			<version>2.2</version>
+			<version>${snakeyaml.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20240303</version>
+			<version>${json.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.14.2</version>
+			<version>${jackson-databind.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.plugin-tools</groupId>
 			<artifactId>maven-plugin-annotations</artifactId>
-			<version>3.8.1</version>
+			<version>${maven-plugin-annotations.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-plugin-api</artifactId>
-			<version>3.8.7</version>
+			<version>${maven-plugin.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-core</artifactId>
-			<version>3.8.7</version>
+			<version>${maven-plugin.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-project</artifactId>
 			<scope>provided</scope>
-			<version>2.2.1</version>
+			<version>${maven-project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.shared</groupId>
 			<artifactId>maven-dependency-tree</artifactId>
 			<version>3.2.1</version>
 		</dependency>
-		<!-- -->
-
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>${lombok.version}</version>
 			<optional>true</optional>
 		</dependency>
-
+		<!-- YAML for parsing the rules -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-yaml</artifactId>
+			<version>2.16.0</version>
+		</dependency>
+		<!-- OpenAPI Parser -->
+		<dependency>
+			<groupId>io.swagger.parser.v3</groupId>
+			<artifactId>swagger-parser</artifactId>
+			<version>2.1.16</version>
+		</dependency>
 		<dependency>
 			<groupId>org.twdata.maven</groupId>
 			<artifactId>mojo-executor</artifactId>
@@ -107,12 +122,6 @@
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
 			<version>4.10.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.30</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -200,7 +209,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!--
+			<!-- -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
@@ -215,9 +224,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
-			-->
-
 			<plugin>
 				<groupId>org.sonatype.central</groupId>
 				<artifactId>central-publishing-maven-plugin</artifactId>
@@ -226,7 +232,7 @@
 				<configuration>
 					<publishingServerId>central</publishingServerId>
 					<tokenAuth>true</tokenAuth>
-					<autoPublish>true</autoPublish>
+					<autoPublish>false</autoPublish>
 					<waitUntil>published</waitUntil>
 				</configuration>
 			</plugin>
