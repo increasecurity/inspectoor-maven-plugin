@@ -1,6 +1,8 @@
 package io.github.increasecurity;
 
 import io.github.increasecurity.model.Spec;
+import io.github.increasecurity.openapi.OpenApiProcessor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.project.MavenProject;
@@ -13,38 +15,36 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class SpecsFinder {
 
-    public List<File> findSpecFiles(String srcPath) {
+    public List<String> findSpecFiles(String srcPath) {
         return InspectoorUtil.findOpenApiFiles(srcPath);
     }
 
-    public List<Spec> readSpecs(List<File> specsFiles) {
+    public List<Spec> readSpecs(List<String> specsFiles) {
         List<Spec> specs = new ArrayList<>();
         if (!specsFiles.isEmpty()) {
-            specsFiles.stream()
-                    .map(File::getAbsolutePath);
-            specs = InspectoorUtil.extractOpenApiVersions(specsFiles);
+            specs = InspectoorUtil.readSpecFiles(specsFiles);
         }
         return specs;
     }
 
     public List<String> findSpecFilesInPom(MavenProject project) {
         List<String> foundFiles = new ArrayList<>();
-        List<String> targetPlugins = List.of("org.openapitools:openapi-generator-maven-plugin", "ein.anderes.plugin"); // Falls weitere Plugins geprüft werden sollen
+        List<String> targetPlugins = List.of("org.openapitools:openapi-generator-maven-plugin", "other.awesome.plugin"); // Falls weitere Plugins geprüft werden sollen
 
         project.getBuildPlugins().stream()
                 .filter(plugin -> targetPlugins.contains(plugin.getKey()))
                 .map(Plugin::getExecutions)
                 .filter(Objects::nonNull)
-                .forEach(executions -> {
+                .forEach(executions ->
                     executions.stream()
                             .map(PluginExecution::getConfiguration)
                             .filter(Objects::nonNull)
@@ -53,10 +53,10 @@ public class SpecsFinder {
                                 try {
                                     foundFiles.addAll(extractYamlJsonPaths(config));
                                 } catch (Exception e) {
-                                    e.printStackTrace();
+                                    log.error("Error is findSpecFilesInPom message={}" , e.getMessage());
                                 }
-                            });
-                });
+                            })
+                );
 
         return foundFiles;
     }
@@ -64,10 +64,14 @@ public class SpecsFinder {
     public void mergeSpecFiles(List<String> pomSpecFiles, List<Spec> specs) {
         List<String> missingLocations = findMissingLocations(pomSpecFiles, specs);
         if (missingLocations != null && !missingLocations.isEmpty()) {
-            //Merge new files
+            missingLocations.stream().forEach(missingLocation -> {
+                OpenApiProcessor processor = new OpenApiProcessor();
+                Spec spec = processor.readSpecFile(missingLocation);
+                if (spec != null) {
+                    specs.add(spec);
+                }
+            });
         }
-
-
     }
 
     private List<String> findMissingLocations(List<String> neuListe, List<Spec> existingSpecs) {

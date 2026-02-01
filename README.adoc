@@ -41,6 +41,11 @@ fail -> stop processing
 == Usages
 
 ----
+mvn clean install -Dgpg.skip=true -Dmaven.javadoc.skip=true -DskipTests
+mvn clean deploy
+----
+
+----
 mvn io.github.increasecurity:inspectoor-maven-plugin:inspectoor -Dou="sales;okSquad" -Dsystem="loremSystem" -Dtag="maven-plugin" -Dcommand=1
 mvn io.github.increasecurity:inspectoor-maven-plugin:inspectoor -Dou="sales;okSquad" -Dsystem="loremSystem" -Dtag="maven-plugin" -Dcommand=2 --Durl="http://localhost:8081" -Dapikey="secret"
 ----

@@ -48,7 +48,7 @@ public class HttpClient {
      * @param url
      * @param apiKey
      */
-    public static void uploadSBOM(String sbomFileName, String system, String projectName, String url, String apiKey) {
+    public static void uploadSBOM(String sbomFileName, String system, String projectName, String version,String url, String apiKey) {
         log.info("uploadSBOM URL ={}", url);
         OkHttpClient client = new OkHttpClient();
 
@@ -56,6 +56,7 @@ public class HttpClient {
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("projectName", projectName)
                 .addFormDataPart("system", system)
+                .addFormDataPart("version", version)
                 .addFormDataPart("bom", "bom.json",
                         RequestBody.create(new File(sbomFileName), JSON_MEDIA_TYPE))
                 .build();

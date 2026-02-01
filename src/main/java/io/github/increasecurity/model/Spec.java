@@ -14,6 +14,7 @@ public class Spec {
     private String version;
     private String info_version;
     private String content;
+    private boolean requiresResolution;
     private List<Server> servers = new ArrayList<>();
     private List<SecurityScheme> securitySchemes = new ArrayList<>();
 
