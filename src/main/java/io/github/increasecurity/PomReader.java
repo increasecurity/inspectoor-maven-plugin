@@ -14,10 +14,10 @@ import static io.github.increasecurity.InspectoorUtil.isBlankList;
 
 public class PomReader {
 
-    public Project readPom(MavenProject mavenProject, MavenProject rootParent,List<MavenProject> reactorProjects, String realm, String ou, String system, String tag, String version) {
+    public Project readPom(MavenProject mavenProject, MavenProject rootParent, List<MavenProject> reactorProjects, String realm, String ou, String system, String tag, String version) {
+        Project project = new Project();
         File pomFile = mavenProject.getModel().getPomFile();
         SpecsFinder specsFinder = new SpecsFinder();
-        Project project = new Project();
         project.setName(mavenProject.getName());
         project.setVersion(version);
         project.setOu(ou);
@@ -27,7 +27,7 @@ public class PomReader {
         project.setRealm(realm);
 
         String srcPath = InspectoorUtil.adjustSrcPath(pomFile.getAbsolutePath());
-        List<File> specsFiles = specsFinder.findSpecFiles(srcPath);
+        List<String> specsFiles = specsFinder.findSpecFiles(srcPath);
 
         List<Spec> specs = specsFinder.readSpecs(specsFiles);
         List<String> pomSpecFiles = specsFinder.findSpecFilesInPom(mavenProject);
@@ -41,7 +41,7 @@ public class PomReader {
         if (reactorProjects != null) {
             for (MavenProject proj : reactorProjects) {
                 if (modules.contains(proj.getName())) {
-                    Project subProject = readPom(proj,rootParent,reactorProjects, realm, ou, system, tag, version);
+                    Project subProject = readPom(proj, rootParent, reactorProjects, realm, ou, system, tag, version);
                     project.getProjects().add(subProject);
                 }
             }
@@ -49,6 +49,7 @@ public class PomReader {
 
         String framework = detectFramework(mavenProject, rootParent);
         project.setFramework(framework);
+
 
         return project;
     }
@@ -64,7 +65,7 @@ public class PomReader {
             if (g.contains("quarkus")) {
                 result = "quarkus";
             }
-            if (g.contains("micronaut")){
+            if (g.contains("micronaut")) {
                 result = "micronaut";
             }
         }

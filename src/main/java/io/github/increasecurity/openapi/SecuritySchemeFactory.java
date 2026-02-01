@@ -1,4 +1,4 @@
-package io.github.increasecurity;
+package io.github.increasecurity.openapi;
 
 import io.github.increasecurity.model.security.*;
 

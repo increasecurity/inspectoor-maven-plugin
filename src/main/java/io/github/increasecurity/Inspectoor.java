@@ -94,7 +94,7 @@ public class Inspectoor extends AbstractMojo {
             MojoExecutor.ExecutionEnvironment executionEnvironment = MojoExecutor.executionEnvironment(this.project, mavenSession, pluginManager);
             MojoExecutor.executeMojo(sbomPlugin, "makeAggregateBom", getPluginConfiguration("json"), executionEnvironment);
             String sbomLocation = InspectoorUtil.readSBOMLocation(pomFile.getAbsolutePath());
-            HttpClient.uploadSBOM(sbomLocation, this.system, project.getName(), this.url + "/upload", this.apikey);
+            HttpClient.uploadSBOM(sbomLocation, this.system, project.getName(), this.project.getVersion(),this.url + "/upload", this.apikey);
         } catch (Exception ex) {
             getLog().error("error trying to process SBOM", ex);
         }

@@ -1,0 +1,8 @@
+description: User not found
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
