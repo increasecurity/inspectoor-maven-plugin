@@ -47,5 +47,6 @@ mvn clean deploy
 
 ----
 mvn io.github.increasecurity:inspectoor-maven-plugin:inspectoor -Dou="sales;okSquad" -Dsystem="loremSystem" -Dtag="maven-plugin" -Dcommand=1
+mvn io.github.increasecurity:inspectoor-maven-plugin:1.3.0:inspectoor -Dou="sales;okSquad" -Dsystem="loremSystem" -Dtag="maven-plugin" -Dcommand=1
 mvn io.github.increasecurity:inspectoor-maven-plugin:inspectoor -Dou="sales;okSquad" -Dsystem="loremSystem" -Dtag="maven-plugin" -Dcommand=2 --Durl="http://localhost:8081" -Dapikey="secret"
 ----

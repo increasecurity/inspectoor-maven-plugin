@@ -126,24 +126,31 @@ public class Inspectoor extends AbstractMojo {
 
     private List<String> checkSpec(Spec spec) {
         List<String> issues = new ArrayList<>();
-        String specId = spec.getName() != null ? spec.getName() : "Unnamed Spec";
+        String specId = spec.getName() == null ? "Unnamed Spec" : spec.getName();
+        addServerIssues(spec, specId, issues);
+        addSecurityIssues(spec, specId, issues);
 
+        return issues;
+    }
+
+    private void addServerIssues(Spec spec, String specId, List<String> issues) {
         if (spec.getServers() == null || spec.getServers().isEmpty()) {
             issues.add(specId + ": No servers defined.");
-        } else {
-            for (Server server : spec.getServers()) {
-                String url = server.getUrl();
-                if (url != null && url.startsWith("http://")) {
-                    issues.add(specId + ": Insecure server URL (http): " + url);
-                }
-            }
+            return;
         }
 
+        for (Server server : spec.getServers()) {
+            String url = server.getUrl();
+            if (url != null && url.startsWith("http://")) {
+                issues.add(specId + ": Insecure server URL (http): " + url);
+            }
+        }
+    }
+
+    private void addSecurityIssues(Spec spec, String specId, List<String> issues) {
         if (spec.getSecuritySchemes() == null || spec.getSecuritySchemes().isEmpty()) {
             issues.add(specId + ": No securitySchemes defined.");
         }
-
-        return issues;
     }
 
     private void printInfos(Project project) {
@@ -219,9 +226,11 @@ public class Inspectoor extends AbstractMojo {
 
         MojoExecutor.Element includeTestScope = new MojoExecutor.Element("includeTestScope", "false");
         MojoExecutor.Element outputFormat = new MojoExecutor.Element("outputFormat", output);
+        // The plugin itself is not deployed, but its SBOM must still be generated.
+        MojoExecutor.Element skipNotDeployed = new MojoExecutor.Element("skipNotDeployed", "false");
 
         return MojoExecutor.configuration(projectType, schemaVersion, includeBomSerialNumber,
                 includeCompileScope, includeProvidedScope, includeRuntimeScope, includeSystemScope,
-                includeTestScope, outputFormat);
+                includeTestScope, outputFormat, skipNotDeployed);
     }
 }
