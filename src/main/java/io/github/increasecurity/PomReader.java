@@ -18,9 +18,18 @@ public class PomReader {
         Project project = new Project();
         setProjectMetadata(project, mavenProject, realm, ou, system, tag, version);
         addSpecifications(project, mavenProject);
+        addApplicationConfiguration(project, mavenProject);
         addSubProjects(project, mavenProject, rootParent, reactorProjects, realm, ou, system, tag, version);
         project.setFramework(detectFramework(mavenProject, rootParent));
         return project;
+    }
+
+    private void addApplicationConfiguration(Project project, MavenProject mavenProject) {
+        File pomFile = mavenProject.getModel().getPomFile();
+        if (pomFile != null) {
+            project.getConfigurationSources().addAll(
+                    new ApplicationConfigurationReader().read(pomFile.toPath().getParent()));
+        }
     }
 
     private void setProjectMetadata(Project project, MavenProject mavenProject, String realm, String ou,

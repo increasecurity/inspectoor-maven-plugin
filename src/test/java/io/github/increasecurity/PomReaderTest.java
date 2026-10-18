@@ -52,6 +52,33 @@ class PomReaderTest {
         assertEquals("spring-boot", project.getFramework());
     }
 
+    @Test
+    void readsApplicationConfigurationSources() {
+        MavenProject mavenProject = project("configured-service", "com.example", "1.0.0");
+        mavenProject.getModel().setPomFile(new File("src/test/resources/application-config/pom.xml"));
+
+        Project project = new PomReader().readPom(
+                mavenProject, null, List.of(), "saas", "ou", "system", null, "1.0.0");
+
+        assertEquals(4, project.getConfigurationSources().size());
+        assertEquals("dev", project.getConfigurationSources().get(0).getProfile());
+        assertEquals("test", project.getConfigurationSources().get(2).getProfile());
+        assertEquals("jdbc:postgresql://localhost/test",
+                project.getConfigurationSources().get(2).getEntries().get("spring.datasource.url"));
+        assertEquals("[REDACTED]", project.getConfigurationSources().get(3).getEntries().get("spring.datasource.password"));
+        assertEquals("8080", project.getConfigurationSources().get(3).getEntries().get("server.port"));
+        assertEquals("[REDACTED]", project.getConfigurationSources().get(3).getEntries().get("spring.datasource.password"));
+    }
+
+    @Test
+    void projectWithoutApplicationConfigurationHasNoSources() {
+        Project project = new PomReader().readPom(
+                project("plain-service", "com.example", "1.0.0"),
+                null, List.of(), "saas", "ou", "system", null, "1.0.0");
+
+        assertEquals(0, project.getConfigurationSources().size());
+    }
+
     private MavenProject project(String name, String groupId, String version) {
         Model model = new Model();
         model.setName(name);

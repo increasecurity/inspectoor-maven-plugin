@@ -22,4 +22,5 @@ public class Project extends Parent{
     private String srcPath;
     private List<Project> projects = new ArrayList();
     private List<Spec> specs = new ArrayList();
+    private List<ConfigurationSource> configurationSources = new ArrayList<>();
 }
