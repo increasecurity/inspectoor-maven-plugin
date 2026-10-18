@@ -29,11 +29,7 @@ public class SpecsFinder {
     }
 
     public List<Spec> readSpecs(List<String> specsFiles) {
-        List<Spec> specs = new ArrayList<>();
-        if (!specsFiles.isEmpty()) {
-            specs = InspectoorUtil.readSpecFiles(specsFiles);
-        }
-        return specs;
+        return specsFiles.isEmpty() ? new ArrayList<>() : InspectoorUtil.readSpecFiles(specsFiles);
     }
 
     public List<String> findSpecFilesInPom(MavenProject project) {
@@ -44,42 +40,38 @@ public class SpecsFinder {
                 .filter(plugin -> targetPlugins.contains(plugin.getKey()))
                 .map(Plugin::getExecutions)
                 .filter(Objects::nonNull)
-                .forEach(executions ->
-                    executions.stream()
-                            .map(PluginExecution::getConfiguration)
-                            .filter(Objects::nonNull)
-                            .map(Object::toString)
-                            .forEach(config -> {
-                                try {
-                                    foundFiles.addAll(extractYamlJsonPaths(config));
-                                } catch (Exception e) {
-                                    log.error("Error is findSpecFilesInPom message={}" , e.getMessage());
-                                }
-                            })
-                );
+                .flatMap(List::stream)
+                .map(PluginExecution::getConfiguration)
+                .filter(Objects::nonNull)
+                .map(Object::toString)
+                .forEach(configuration -> addSpecPaths(foundFiles, configuration));
 
         return foundFiles;
     }
 
     public void mergeSpecFiles(List<String> pomSpecFiles, List<Spec> specs) {
-        List<String> missingLocations = findMissingLocations(pomSpecFiles, specs);
-        if (missingLocations != null && !missingLocations.isEmpty()) {
-            missingLocations.stream().forEach(missingLocation -> {
-                OpenApiProcessor processor = new OpenApiProcessor();
-                Spec spec = processor.readSpecFile(missingLocation);
-                if (spec != null) {
-                    specs.add(spec);
-                }
-            });
+        for (String missingLocation : findMissingLocations(pomSpecFiles, specs)) {
+            Spec spec = new OpenApiProcessor().readSpecFile(missingLocation);
+            if (spec != null) {
+                specs.add(spec);
+            }
         }
     }
 
-    private List<String> findMissingLocations(List<String> neuListe, List<Spec> existingSpecs) {
+    private void addSpecPaths(List<String> foundFiles, String configuration) {
+        try {
+            foundFiles.addAll(extractYamlJsonPaths(configuration));
+        } catch (Exception e) {
+            log.error("Error is findSpecFilesInPom message={}", e.getMessage());
+        }
+    }
+
+    private List<String> findMissingLocations(List<String> pomSpecFiles, List<Spec> existingSpecs) {
         Set<String> existingLocations = existingSpecs.stream()
                 .map(Spec::getLocation)
                 .collect(Collectors.toSet());
 
-        return neuListe.stream()
+        return pomSpecFiles.stream()
                 .filter(location -> !existingLocations.contains(location)).toList();
     }
 

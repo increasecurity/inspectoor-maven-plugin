@@ -2,6 +2,7 @@ package io.github.increasecurity.openapi;
 
 import io.github.increasecurity.model.Spec;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class OpenApiProcessorTest {
@@ -16,6 +17,7 @@ class OpenApiProcessorTest {
     }
 
     @Test
+    @Disabled("Requires external network access")
     void readSpecFileOnline() {
         Spec spec = processor.readSpecFile("https://petstore3.swagger.io/api/v3/openapi.json");
         Assertions.assertNotNull(spec);
@@ -24,14 +26,14 @@ class OpenApiProcessorTest {
 
     @Test
     void testLoadResolvedOpenApiAsYamlJson() {
-        String yaml = processor.loadResolvedOpenApiAsYaml("https://petstore3.swagger.io/api/v3/openapi.json");
+        String yaml = processor.loadResolvedOpenApiAsYaml("src/test/resources/specfiles/petstore3.json");
         Assertions.assertNotNull(yaml);
         Assertions.assertTrue(yaml.startsWith("openapi:"));
     }
 
     @Test
     void testLoadResolvedOpenApiAsYamlYaml() {
-        String yaml = processor.loadResolvedOpenApiAsYaml("https://petstore3.swagger.io/api/v3/openapi.yaml");
+        String yaml = processor.loadResolvedOpenApiAsYaml("src/test/resources/specfiles/petstore.yaml");
         Assertions.assertNotNull(yaml);
         Assertions.assertTrue(yaml.startsWith("openapi:"));
     }

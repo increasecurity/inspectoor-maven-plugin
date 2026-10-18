@@ -44,4 +44,10 @@ class InspectoorUtilTest {
         Assertions.assertTrue(specs.isEmpty());
     }
 
+    @Test
+    void readSBOMLocationUsesTargetDirectoryNextToPom() {
+        Assertions.assertEquals("project/target/bom.json",
+                InspectoorUtil.readSBOMLocation("project/pom.xml"));
+    }
+
 }
